@@ -47,6 +47,19 @@ jobs:
       - run: yarn test
       - run: echo test complete
 
+  test-environment:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - dependencies-{{ checksum "yarn.lock" }}
+      - attach_workspace:
+          at: ~/repo/workspace
+      - run: ls ~/repo/workspace/compiled_output.txt
+      - run: yarn test
+      - run: echo test-environment complete
+
   deploy:
     <<: *defaults
     steps:
@@ -76,4 +89,11 @@ workflows:
           filters:
             branches:
               only:
+                - master
+      - test-environment:
+          requires:
+            - test
+          filters:
+            branch:
+              ignore:
                 - master
