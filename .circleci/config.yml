@@ -25,8 +25,39 @@ jobs:
       - restore_cache:
           keys:
             - dependencies-{{ checksum "yarn.lock" }}
+      - run: yarn build
+      - run: echo build complete
+      - run: mkdir build_output
+      - run: touch build_output/compiled_output.txt
+      - persist_to_workspace:
+          root: build_output
+          paths:
+            - '*'
+
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - dependencies-{{ checksum "yarn.lock" }}
+      - attach_workspace:
+          at: ~/repo/workspace
+      - run: ls ~/repo/workspace/compiled_output.txt
       - run: yarn test
-      - run: echo Hello Pluralsight
+      - run: echo test complete
+
+  deploy:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - dependencies-{{ checksum "yarn.lock" }}
+      - attach_workspace:
+          at: ~/repo/workspace
+      - run: ls ~/repo/workspace/compiled_output.txt
+      - run: echo deploy complete
 
 workflows:
   version: 2
@@ -36,3 +67,9 @@ workflows:
       - build:
           requires:
             - install
+      - test:
+          requires:
+            - build
+      - deploy:
+          requires:
+            - test
