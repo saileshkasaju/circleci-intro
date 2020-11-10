@@ -4,5 +4,5 @@ orbs:
 workflows:
   node-tests:
     jobs:
-      - node/test
-      - run: echo Hello Sailesh
+      - node/test:
+          - run: echo Hello Sailesh
